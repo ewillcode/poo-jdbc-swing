@@ -1,0 +1,18 @@
+# Build do Maven
+target/
+out/
+
+# Banco SQLite local (criado ao executar)
+data/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Sistema
+.DS_Store
+Thumbs.db

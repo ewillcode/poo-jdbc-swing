@@ -1,0 +1,40 @@
+classDiagram
+  direction LR
+  class Cliente {
+    <<record>>
+    -Long id
+    -String nome
+    -String cpf
+  }
+  class Vendedor {
+    <<record>>
+    -Long id
+    -String nome
+    -String cpf
+  }
+  class Produto {
+    <<record>>
+    -Long id
+    -String nome
+    -BigDecimal preco
+  }
+  class Venda {
+    <<record>>
+    -Long id
+    -LocalDateTime dataHora
+    -Cliente cliente
+    -Vendedor vendedor
+    -BigDecimal total
+  }
+  class ItemVenda {
+    <<record>>
+    -Long id
+    -Produto produto
+    -int quantidade
+    -BigDecimal precoUnitario
+    -BigDecimal subtotal
+  }
+  Cliente "1" <-- "0..*" Venda : cliente
+  Vendedor "1" <-- "0..*" Venda : vendedor
+  Venda "1" *-- "1..*" ItemVenda : itens
+  ItemVenda "0..*" --> "1" Produto : produto

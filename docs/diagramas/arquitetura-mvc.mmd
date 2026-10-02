@@ -1,0 +1,12 @@
+flowchart LR
+  V["<b>View</b> (Swing)<br/>HubFrame<br/>ClienteFrame<br/>VendedorFrame<br/>ProdutoFrame<br/>VendaFrame<br/>ListarVendasFrame<br/>ConsultaClientesFrame"]
+  C["<b>Controller</b><br/>ClienteController<br/>VendedorController<br/>ProdutoController<br/>VendaController"]
+  D["<b>DAO</b><br/>ClienteDao<br/>VendedorDao<br/>ProdutoDao<br/>VendaDao<br/>Database"]
+  DB[("SQLite<br/>material_construcao.db")]
+  M["<b>Model</b><br/>Cliente<br/>Vendedor<br/>Produto<br/>Venda<br/>ItemVenda"]
+  V -- "ações do usuário" --> C
+  C -- "valida e chama" --> D
+  D -- "SQL (JDBC)" --> DB
+  M -. "usado por todas as camadas" .- V
+  M -.- C
+  M -.- D
