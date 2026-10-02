@@ -1,0 +1,35 @@
+erDiagram
+  CLIENTE ||--o{ VENDA : realiza
+  VENDEDOR ||--o{ VENDA : registra
+  VENDA ||--|{ ITEM_VENDA : contem
+  PRODUTO ||--o{ ITEM_VENDA : "vendido em"
+  CLIENTE {
+    INTEGER id PK
+    TEXT nome
+    TEXT cpf UK
+  }
+  VENDEDOR {
+    INTEGER id PK
+    TEXT nome
+    TEXT cpf UK
+  }
+  PRODUTO {
+    INTEGER id PK
+    TEXT nome
+    NUMERIC preco
+  }
+  VENDA {
+    INTEGER id PK
+    TEXT data_hora
+    INTEGER cliente_id FK
+    INTEGER vendedor_id FK
+    NUMERIC total
+  }
+  ITEM_VENDA {
+    INTEGER id PK
+    INTEGER venda_id FK
+    INTEGER produto_id FK
+    INTEGER quantidade
+    NUMERIC preco_unitario
+    NUMERIC subtotal
+  }

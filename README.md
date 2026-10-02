@@ -1,119 +1,95 @@
 # Sistema de Material de Construção
 
-Aplicação desktop em Java Swing para cadastro e venda de materiais de construção. O projeto usa SQLite local e separa interface, regras de aplicação e persistência no padrão MVC.
+Aplicação desktop em **Java Swing** para cadastro de clientes, vendedores e produtos e registro de vendas de uma loja de materiais de construção. Usa banco **SQLite** local via JDBC e segue o padrão **MVC**.
+
+Trabalho da disciplina de Programação Orientada a Objetos: sistema desktop com integração com banco de dados, 4 ou mais tabelas, várias telas e padrão MVC.
 
 ## Como executar
 
-Pré-requisito: Java 21 e Maven instalados.
+Pré-requisitos: **Java 21** e Maven. No IntelliJ o Maven já vem embutido.
 
-```powershell
-mvn test
-mvn exec:java
+### IntelliJ IDEA
+
+1. **File → Open** e escolha a pasta do repositório (a que tem o `pom.xml`).
+2. Se aparecer *"Project JDK is not defined"*, clique em **Setup SDK** e escolha um JDK **21**. Se não tiver, use **Download JDK**.
+3. Abra `src/main/java/br/edu/materialconstrucao/Main.java` e clique no ▶️ ao lado do `main`.
+
+### Terminal
+
+```bash
+mvn test       # roda os testes
+mvn exec:java  # abre o sistema
 ```
 
-Na primeira execução, o banco `data/material_construcao.db` é criado automaticamente.
+Na primeira execução o banco `data/material_construcao.db` é criado e, se estiver vazio, recebe **dados de exemplo**: 3 clientes, 2 vendedores, 5 produtos e 2 vendas. Para começar do zero, apague a pasta `data/`.
 
 ## Funcionalidades
 
-- Cadastro, alteração e exclusão de clientes, produtos e vendedores.
-- Consulta de clientes por nome ou CPF.
-- Venda com cliente, vendedor, carrinho de itens e cálculo automático do total.
-- Listagem de vendas e visualização dos itens de cada venda.
-- Registros ligados a uma venda não podem ser excluídos, preservando o histórico.
+- **Cadastro de clientes, vendedores e produtos:** incluir, alterar e excluir. Clique numa linha da tabela para carregar o registro no formulário e editar. O botão **Limpar** volta ao modo de novo cadastro.
+- **Validações:** nome obrigatório, CPF com dígitos verificadores válidos e sem repetição, preço maior que zero com até 2 casas. O preço aceita `25,90`, `25.90` ou `1.250,00`.
+- **Venda:** escolha cliente e vendedor, adicione produtos ao carrinho (repetir o mesmo produto soma a quantidade) e finalize. Venda e itens são gravados numa única transação.
+- **Histórico de preço:** cada item guarda o preço cobrado na hora da venda. Reajustar o produto depois não altera vendas antigas.
+- **Listar vendas:** mostra todas as vendas e os itens da venda selecionada.
+- **Consultar clientes:** busca por parte do nome ou do CPF, com ou sem pontuação.
+- **Integridade:** cliente, vendedor ou produto que já aparece em alguma venda não pode ser excluído.
+- Todas as telas abertas pelo Hub têm o botão **Voltar ao Hub**.
 
-## Protótipos das telas
+## 1ª etapa: tema, protótipos e diagramas
+
+**Tema:** Sistema de Material de Construção.
+
+### Protótipos de tela
+
+As imagens ficam em [`docs/prototipos/`](docs/prototipos).
 
 | Tela | Conteúdo e ações |
 | --- | --- |
-| Hub | Apresentação e botões para todas as telas do sistema. |
-| Cadastrar Cliente | Nome e CPF; tabela de registros; ações Salvar, Limpar, Alterar e Excluir. |
-| Cadastrar Produto | Nome e preço; tabela de registros; ações Salvar, Limpar, Alterar e Excluir. |
-| Cadastrar Vendedor | Nome e CPF; tabela de registros; ações Salvar, Limpar, Alterar e Excluir. |
-| Cadastrar Venda | Cliente e vendedor em seletores; produto e quantidade para incluir no carrinho; total e botão Finalizar Venda. |
-| Listar Vendas | Tabela com venda, data, cliente, vendedor e total; painel com os itens da venda selecionada. |
-| Consultar Clientes | Campo de busca por nome ou CPF e tabela de resultados. |
+| [Hub](docs/prototipos/01-hub.png) | Apresentação do sistema e um botão para cada tela. |
+| [Cadastrar Cliente](docs/prototipos/02-cadastrar-cliente.png) | Nome e CPF; tabela de clientes; Cadastrar / Salvar alterações, Limpar, Excluir, Voltar ao Hub. |
+| [Cadastrar Produto](docs/prototipos/03-cadastrar-produto.png) | Nome e preço; tabela de produtos; mesmas ações. |
+| [Cadastrar Vendedor](docs/prototipos/04-cadastrar-vendedor.png) | Nome e CPF; tabela de vendedores; mesmas ações. |
+| [Cadastrar Venda](docs/prototipos/05-cadastrar-venda.png) | Cliente e vendedor; produto e quantidade para o carrinho; total; Finalizar Venda. |
+| [Listar Vendas](docs/prototipos/06-listar-vendas.png) | Vendas com data, cliente, vendedor e total; itens da venda selecionada. |
+| [Consultar Clientes](docs/prototipos/07-consultar-clientes.png) | Busca por nome ou CPF e tabela de resultados. |
 
-Todas as telas abertas pelo Hub possuem o botão **Voltar ao Hub**.
+![Hub](docs/prototipos/01-hub.png)
+![Cadastrar Venda](docs/prototipos/05-cadastrar-venda.png)
 
-## Diagrama de classes
+### Diagrama de classes (entidades)
 
-```mermaid
-classDiagram
-  class Cliente {
-    +Long id
-    +String nome
-    +String cpf
-  }
-  class Vendedor {
-    +Long id
-    +String nome
-    +String cpf
-  }
-  class Produto {
-    +Long id
-    +String nome
-    +BigDecimal preco
-  }
-  class Venda {
-    +Long id
-    +LocalDateTime dataHora
-    +BigDecimal total
-  }
-  class ItemVenda {
-    +Long id
-    +int quantidade
-    +BigDecimal precoUnitario
-    +BigDecimal subtotal
-  }
-  Cliente "1" --> "0..*" Venda : realiza
-  Vendedor "1" --> "0..*" Venda : registra
-  Venda "1" *-- "1..*" ItemVenda : contém
-  Produto "1" --> "0..*" ItemVenda : compõe
+![Diagrama de classes](docs/diagramas/diagrama-classes.png)
+
+Fonte em Mermaid: [`docs/diagramas/diagrama-classes.mmd`](docs/diagramas/diagrama-classes.mmd)
+
+### Diagrama MER
+
+![MER](docs/diagramas/mer.png)
+
+Fonte em Mermaid: [`docs/diagramas/mer.mmd`](docs/diagramas/mer.mmd)
+
+## Arquitetura (MVC)
+
+![Arquitetura MVC](docs/diagramas/arquitetura-mvc.png)
+
+```
+src/main/java/br/edu/materialconstrucao/
+├── Main.java            liga as camadas e abre o Hub
+├── DadosExemplo.java    dados iniciais para demonstração
+├── model/               entidades (records): Cliente, Vendedor, Produto, Venda, ItemVenda
+├── dao/                 SQL e acesso ao SQLite (um DAO por entidade + Database)
+├── controller/          validações e regras de negócio (um controller por assunto)
+└── view/                telas Swing (um JFrame por tela + BaseFrame com o que é comum)
 ```
 
-## Diagrama MER
+Fluxo de uma ação, por exemplo salvar um cliente:
 
-```mermaid
-erDiagram
-  CLIENTE ||--o{ VENDA : realiza
-  VENDEDOR ||--o{ VENDA : registra
-  VENDA ||--|{ ITEM_VENDA : contem
-  PRODUTO ||--o{ ITEM_VENDA : vendido_em
-  CLIENTE {
-    INTEGER id PK
-    TEXT nome
-    TEXT cpf UK
-  }
-  VENDEDOR {
-    INTEGER id PK
-    TEXT nome
-    TEXT cpf UK
-  }
-  PRODUTO {
-    INTEGER id PK
-    TEXT nome
-    NUMERIC preco
-  }
-  VENDA {
-    INTEGER id PK
-    TEXT data_hora
-    INTEGER cliente_id FK
-    INTEGER vendedor_id FK
-    NUMERIC total
-  }
-  ITEM_VENDA {
-    INTEGER id PK
-    INTEGER venda_id FK
-    INTEGER produto_id FK
-    INTEGER quantidade
-    NUMERIC preco_unitario
-    NUMERIC subtotal
-  }
-```
+1. **View** (`ClienteFrame`): o usuário preenche o formulário e clica em *Cadastrar*.
+2. **Controller** (`ClienteController`): valida nome e CPF e decide entre inserir ou atualizar.
+3. **DAO** (`ClienteDao`): executa o `INSERT`/`UPDATE` no SQLite.
+4. **View**: recarrega a tabela ou mostra a mensagem de erro.
 
-## Estrutura MVC
+As telas não acessam o banco diretamente: só conversam com os controllers.
 
-- `model`: entidades do domínio.
-- `dao`: SQL e acesso aos dados SQLite.
-- `controller`: validações, regras de venda e coordenação entre telas e dados.
-- `view`: telas Java Swing.
+## Testes
+
+Os testes ficam em `src/test/java` e usam um banco temporário novo a cada teste. Eles cobrem as validações de CPF e preço, a busca de clientes, o carrinho, a gravação da venda, o histórico de preço e o bloqueio de exclusão.
