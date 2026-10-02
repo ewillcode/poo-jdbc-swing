@@ -11,11 +11,7 @@ import br.edu.materialconstrucao.model.Vendedor;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Cadastra alguns registros de exemplo quando o banco está vazio,
- * para o sistema já abrir com dados para demonstração.
- * Usa os controllers, então os dados passam pelas mesmas validações das telas.
- */
+// seed do banco
 final class DadosExemplo {
 
     private final ClienteController clientes;
