@@ -1,7 +1,7 @@
 package br.edu.materialconstrucao.view;
 
-import br.edu.materialconstrucao.controller.ProdutoController;
-import br.edu.materialconstrucao.model.Produto;
+import br.edu.materialconstrucao.controller.ClienteController;
+import br.edu.materialconstrucao.model.Cliente;
 import java.awt.BorderLayout;
 import java.util.List;
 import javax.swing.JButton;
@@ -12,25 +12,25 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Cadastro de produtos. Clicar numa linha da tabela carrega o produto no
+ * Cadastro de clientes. Clicar numa linha da tabela carrega o cliente no
  * formulário para edição; "Limpar" volta ao modo de novo cadastro.
  */
-final class ProdutoFrame extends BaseFrame {
+final class ClienteFrame extends BaseFrame {
 
-    private final ProdutoController controller;
+    private final ClienteController controller;
 
     private final JTextField campoNome = new JTextField(30);
-    private final JTextField campoPreco = new JTextField(10);
+    private final JTextField campoCpf = new JTextField(14);
     private final JButton botaoSalvar = new JButton("Cadastrar");
     private final JButton botaoExcluir = new JButton("Excluir");
-    private final DefaultTableModel modelo = modeloTabela("ID", "Nome", "Preço");
+    private final DefaultTableModel modelo = modeloTabela("ID", "Nome", "CPF");
     private final JTable tabela = tabela(modelo);
 
-    private List<Produto> produtos = List.of();
-    private Produto selecionado;
+    private List<Cliente> clientes = List.of();
+    private Cliente selecionado;
 
-    ProdutoFrame(ProdutoController controller, HubFrame hub) {
-        super("Cadastrar Produto", hub);
+    ClienteFrame(ClienteController controller, HubFrame hub) {
+        super("Cadastrar Cliente", hub);
         this.controller = controller;
         montarTela();
         carregarTabela();
@@ -39,10 +39,10 @@ final class ProdutoFrame extends BaseFrame {
     }
 
     private void montarTela() {
-        definirLarguras(tabela, 60, 480, 160);
-        alinharADireita(tabela, 0, 2);
+        definirLarguras(tabela, 60, 440, 200);
+        alinharADireita(tabela, 0);
 
-        JPanel form = formulario("Dados do produto", new String[]{"Nome:", "Preço (R$):"}, campoNome, campoPreco);
+        JPanel form = formulario("Dados do cliente", new String[]{"Nome:", "CPF:"}, campoNome, campoCpf);
 
         JButton botaoLimpar = new JButton("Limpar");
         botaoSalvar.addActionListener(e -> salvar());
@@ -63,10 +63,10 @@ final class ProdutoFrame extends BaseFrame {
     }
 
     private void carregarTabela() {
-        produtos = controller.listar();
+        clientes = controller.listar();
         modelo.setRowCount(0);
-        for (Produto produto : produtos) {
-            modelo.addRow(new Object[]{produto.id(), produto.nome(), Formatos.dinheiro(produto.preco())});
+        for (Cliente cliente : clientes) {
+            modelo.addRow(new Object[]{cliente.id(), cliente.nome(), Formatos.cpf(cliente.cpf())});
         }
     }
 
@@ -75,9 +75,9 @@ final class ProdutoFrame extends BaseFrame {
         if (linha < 0) {
             return;
         }
-        selecionado = produtos.get(linha);
+        selecionado = clientes.get(linha);
         campoNome.setText(selecionado.nome());
-        campoPreco.setText(Formatos.decimal(selecionado.preco()));
+        campoCpf.setText(Formatos.cpf(selecionado.cpf()));
         botaoSalvar.setText("Salvar alterações");
         botaoExcluir.setEnabled(true);
     }
@@ -86,8 +86,8 @@ final class ProdutoFrame extends BaseFrame {
         try {
             boolean novo = selecionado == null;
             Long id = novo ? null : selecionado.id();
-            controller.salvar(id, campoNome.getText(), campoPreco.getText());
-            mostrarSucesso(novo ? "Produto cadastrado." : "Produto atualizado.");
+            controller.salvar(id, campoNome.getText(), campoCpf.getText());
+            mostrarSucesso(novo ? "Cliente cadastrado." : "Cliente atualizado.");
             carregarTabela();
             limparFormulario();
         } catch (Exception e) {
@@ -96,12 +96,12 @@ final class ProdutoFrame extends BaseFrame {
     }
 
     private void excluir() {
-        if (selecionado == null || !confirmar("Excluir o produto " + selecionado.nome() + "?")) {
+        if (selecionado == null || !confirmar("Excluir o cliente " + selecionado.nome() + "?")) {
             return;
         }
         try {
             controller.excluir(selecionado.id());
-            mostrarSucesso("Produto excluído.");
+            mostrarSucesso("Cliente excluído.");
             carregarTabela();
             limparFormulario();
         } catch (Exception e) {
@@ -112,7 +112,7 @@ final class ProdutoFrame extends BaseFrame {
     private void limparFormulario() {
         selecionado = null;
         campoNome.setText("");
-        campoPreco.setText("");
+        campoCpf.setText("");
         tabela.clearSelection();
         botaoSalvar.setText("Cadastrar");
         botaoExcluir.setEnabled(false);
