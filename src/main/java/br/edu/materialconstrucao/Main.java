@@ -13,9 +13,7 @@ import br.edu.materialconstrucao.view.HubFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-/**
- * Ponto de entrada: prepara o banco, liga as camadas do MVC e abre o Hub.
- */
+// Ponto de entrada: prepara o banco, liga as camadas do MVC e abre o Hub.
 public final class Main {
 
     public static void main(String[] args) {
@@ -34,16 +32,8 @@ public final class Main {
 
         // Controller → View: as telas só conversam com os controllers
         SwingUtilities.invokeLater(() -> {
-            usarVisualDoSistema();
             new HubFrame(clientes, vendedores, produtos, vendas).setVisible(true);
         });
     }
 
-    private static void usarVisualDoSistema() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            // se não conseguir, o Swing usa o visual padrão dele
-        }
-    }
 }
